@@ -1,6 +1,8 @@
 var MAM_payload = "";
 var MAM_root    = "";
-var chuncks     = [];
+var chunks      = [];
+var num_chunks  = 0;
+var crc         = 0;
 
 /* https://gist.github.com/taterbase/2784890 */
 function bin2string(array){
@@ -12,22 +14,25 @@ function bin2string(array){
 }
 
 module.exports = function(request) {
-  chuncks[request.index] = request.payload;
-
-  if(request.index == 152 && chuncks.length == 153){
+  chunks[request.index] = request.payload;
+  //Header block
+  if(request.index == 255)
+  {
+    num_chunks = request.payload[0];
+    crc = request.payload[1];
+  }
+  if(request.index == num_chunks-1){
     let ii = 0;
     let message = "";
     let root = "";
-    for(ii = 0; ii < 148; ii++){
-      message += bin2string(chuncks[ii]);
+    console.log("Reguest: %d, length: %d, %s, ", request.index, request.payload.length, request.payload);
+    //console.log(chunks[ii]);
+    for(ii = 0; ii < num_chunks; ii++){
+      message += bin2string(chunks[ii]);
     }
     console.log(message);
     
-    for( ; ii < 153; ii++){
-      root += bin2string(chuncks[ii]);
-    }
-    console.log(root);
   }
-  //console.log("%d, %d", request.index, chuncks.length)
+  //console.log("%d, %d", request.index, request.payload.length)
   return "ok"
 };
