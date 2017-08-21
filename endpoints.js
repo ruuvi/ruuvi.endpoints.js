@@ -1,15 +1,15 @@
 var PLAINTEXT_MESSAGE       = 0x10; // Plaintext data for info, debug etc
 var MESSAGE_ACKNOWLEDGEMENT = 0x11; // Acknowledge a message
 
-var BATTERY                 = 0x20; // Battery state message
-var TEMPERATURE             = 0x21; // Temperature message
-var HUMIDITY                = 0x22;
-var PRESSURE                = 0x23;
-var AIR_QUALITY             = 0x24;
+var BATTERY                 = 0x30; // Battery state message
+var TEMPERATURE             = 0x31; // Temperature message
+var HUMIDITY                = 0x32;
+var PRESSURE                = 0x33;
+var AIR_QUALITY             = 0x34;
 
-var ACCELERATION            = 0x30;
-var MAGNETOMETER            = 0x31;
-var GYROSCOPE               = 0x32;
+var ACCELERATION            = 0x40;
+var MAGNETOMETER            = 0x41;
+var GYROSCOPE               = 0x42;
 var MOVEMENT_DETECTOR       = 0x33;
 
 var MAM                     = 0xE0; //Masked Authethentication Messaging
@@ -21,29 +21,31 @@ var unknown_handler = require('./handlers/unknown.js')
 
 function routeRequest(request)
 {
+  let response = {};
+  response.ready = false;
   if(!request.destination_endpoint){
-    unknown_hander(request)
+    response = unknown_hander(request)
   }
 
   switch(request.destination_endpoint){
     case PLAINTEXT_MESSAGE:
-      plaintext_handler(request);
+      response = plaintext_handler(request);
       break;
 
     case MESSAGE_ACKNOWLEDGEMENT:
-      acknowledgement_handler(request);
+      response = acknowledgement_handler(request);
       break;
 
     case MAM:
-      mam_handler(request);
+      response = mam_handler(request);
       break;
 
     default:
-      unknonw_handler(request);
+      response = unknown_handler(request);
       break;
   }
 
-  return 
+  return response;
 }
 
 module.exports = function(request) {
