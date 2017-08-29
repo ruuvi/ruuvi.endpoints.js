@@ -1,5 +1,4 @@
 var PLAINTEXT_MESSAGE       = 0x10; // Plaintext data for info, debug etc
-var MESSAGE_ACKNOWLEDGEMENT = 0x11; // Acknowledge a message
 
 var BATTERY                 = 0x30; // Battery state message
 var TEMPERATURE             = 0x31; // Temperature message
@@ -15,8 +14,8 @@ var MOVEMENT_DETECTOR       = 0x33;
 var MAM                     = 0xE0; //Masked Authethentication Messaging
 
 var plaintext_handler = require('./handlers/plaintext.js');
-var acknowledgement_handler = require('./handlers/acknowledgement.js');
 var mam_handler = require('./handlers/mam.js');
+var temperature_handler = require('./handlers/temperature.js')
 var unknown_handler = require('./handlers/unknown.js')
 
 function routeRequest(request)
@@ -31,9 +30,9 @@ function routeRequest(request)
     case PLAINTEXT_MESSAGE:
       response = plaintext_handler(request);
       break;
-
-    case MESSAGE_ACKNOWLEDGEMENT:
-      response = acknowledgement_handler(request);
+      
+    case TEMPERATURE:
+      response = temperature_handler(request);
       break;
 
     case MAM:
