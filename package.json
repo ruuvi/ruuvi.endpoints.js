@@ -1,5 +1,5 @@
 {
-  "name": "endpoints.ruuvi.js",
+  "name": "ruuvi.endpoints.js",
   "version": "0.0.3",
   "description": "Ruuvi sensor protocol implementation",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ruuvi/endpoints.ruuvi.js.git"
+    "url": "git+https://github.com/ruuvi/ruuvi.endpoints.js.git"
   },
   "keywords": [
     "ruuvi",
@@ -17,7 +17,7 @@
   "author": "Otso Jousimaa <otso@ruuvi.com>",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/ruuvi/endpoints.ruuvi.js/issues"
+    "url": "https://github.com/ruuvi/ruuvi.endpoints.js/issues"
   },
-  "homepage": "https://github.com/ruuvi/endpoints.ruuvi.js#readme"
+  "homepage": "https://github.com/ruuvi/ruuvi.endpoints.js#readme"
 }
