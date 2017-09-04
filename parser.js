@@ -1,4 +1,7 @@
-"use strict;"
+/*jshint 
+    node: true
+ */
+"use strict";
 
 let types = {
   SENSOR_CONFIGURATION:  0x01, // Configure sensor
@@ -25,13 +28,14 @@ let types = {
   UINT64:                0x86, // Single uint64
   INT64:                 0x87,
   ASCII:                 0x88  // ASCII array
-}
+};
 
 /** 
  *  Parses given request payload into object.
  **/
 let parseType = function(request, data)
 {
+    let valueArray = {};
     switch(request.type){
       case types.SENSOR_CONFIGURATION:
         request.payload.sample_rate = data[3];
@@ -43,7 +47,7 @@ let parseType = function(request, data)
         request.payload.target = data[9];
         request.payload.reserved = data[10];
         break;
-      case UINT8:
+      case types.UINT8:
         request.payload.values = [];
         request.payload.values[0] = data[3];
         request.payload.values[1] = data[4];
@@ -53,8 +57,9 @@ let parseType = function(request, data)
         request.payload.values[5] = data[8];
         request.payload.values[6] = data[9];
         request.payload.values[7] = data[10];
-      case INT8:
-        valueArray = new Int8Array(data, 3]);
+        break;
+      case types.INT8:
+        valueArray = new Int8Array(data, 3);
         request.payload.values = [];
         request.payload.values[0] = valueArray[0];
         request.payload.values[1] = valueArray[1];
@@ -65,57 +70,57 @@ let parseType = function(request, data)
         request.payload.values[6] = valueArray[6];
         request.payload.values[7] = valueArray[7];
         break;
-      case UINT16:
-        valueArray = new Uint16Array(data, 3]);
+      case types.UINT16:
+        valueArray = new Uint16Array(data, 3);
         request.payload.values = [];
         request.payload.values[0] = valueArray[0];
         request.payload.values[1] = valueArray[1];
         request.payload.values[2] = valueArray[2];
         request.payload.values[3] = valueArray[3];
         break;
-      case INT16:
-        valueArray = new Int16Array(data, 3]);
+      case types.INT16:
+        valueArray = new Int16Array(data, 3);
         request.payload.values = [];
         request.payload.values[0] = valueArray[0];
         request.payload.values[1] = valueArray[1];
         request.payload.values[2] = valueArray[2];
         request.payload.values[3] = valueArray[3];
         break;
-      case UINT32:
-        valueArray = new Uint32Array(data, 3]);
+      case types.UINT32:
+        valueArray = new Uint32Array(data, 3);
         request.payload.values = [];
         request.payload.values[0] = valueArray[0];
         request.payload.values[1] = valueArray[1];
         break;
-      case INT32:
-        valueArray = new Int32Array(data, 3]);
+      case types.INT32:
+        valueArray = new Int32Array(data, 3);
         request.payload.values = [];
         request.payload.values[0] = valueArray[0];
         request.payload.values[1] = valueArray[1];
         break;
-      case UINT64:
-        valueArray = new Uint64Array(data, 3]);
+      case types.UINT64:
+        valueArray = new Uint32Array(data, 3);
         request.payload.values = [];
-        request.payload.values[0] = valueArray[0];
+        request.payload.values[0] = valueArray[0]<<32 + valueArray[1];
         break;
-      case INT64:
-        valueArray = new Int64Array(data, 3]);
+      case types.INT64:
+        valueArray = new Int32Array(data, 3);
         request.payload.values = [];
-        request.payload.values[0] = valueArray[0];
+        request.payload.values[0] = valueArray[0]<<32 + valueArray[1];
         break;
     }
-}
+};
 
 let parseStandardMsg = function(request, data){
   request.source_endpoint = data[1];
   request.type = data[2];
   parseType(request, data);
-}
+};
 
 /** Take raw uint8_t array from RuuviTag and parse it to a request object**/
 module.exports = function(payload) {
-  data = new Uint8Array(payload);
-  request = {};
+  let data = new Uint8Array(payload);
+  let request = {};
   request.destination_endpoint = data[0];
   if(request.destination_endpoint < 0xE0){
     parseStandardMsg(request, data);

@@ -1,5 +1,9 @@
-var handleRequest = require('./endpoints.js')
-var parser        = require('./parser.js')
+/*jshint 
+    node: true,
+    esversion: 6
+ */
+"use strict";
+var parser        = require('./parser.js');
 
 /**
  *  Takes UINT8_T array with 11 bytes as input
@@ -13,18 +17,18 @@ var parser        = require('./parser.js')
  *  message.payload.transmission_rate  
  *  // and so on. Payload fields are dependend on type.
  **/
-let parse = function(serialBuffer){
+var parse = function(serialBuffer){
   return parser(serialBuffer);	
-} 
+};
 
 /**
  * Takes Ruuvi Standard Message
  * and returns 11-byte long UINT8 array represenstation.
  *
  */
-let create = function(message){
-  console.log("TODO");
-}
+var create = function(message){
+  console.log("TODO: handle: " + message);
+};
 
 module.exports = {
   parse: parse,
