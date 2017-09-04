@@ -47,6 +47,6 @@ function routeRequest(request)
   return response;
 }
 
-module.exports = function(request) {
+module.exports.route = function(request) {
   return routeRequest(request);
 };
