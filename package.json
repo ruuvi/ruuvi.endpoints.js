@@ -1,6 +1,6 @@
 {
   "name": "ruuvi.endpoints.js",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Ruuvi sensor protocol implementation",
   "main": "index.js",
   "scripts": {
