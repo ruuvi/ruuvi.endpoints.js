@@ -111,10 +111,18 @@ let parseType = function(request, data)
     }
 };
 
+//TODO: create a separate return object in handler rather than modifying the request.
 let parseStandardMsg = function(request, data){
   request.source_endpoint = data[1];
   request.type = data[2];
   parseType(request, data);
+};
+
+let parseBroadcastMsg = function(request, data){
+  //Routes request to appropriate handler which parses the request.
+  request.payload = data;
+  request.destination_endpoint = data[0];
+  return endpoints.routeRequest(request);
 };
 
 /** Take raw uint8_t array from RuuviTag and parse it to a request object**/
@@ -122,9 +130,15 @@ module.exports = function(payload) {
   let data = new Uint8Array(payload);
   let request = {};
   request.destination_endpoint = data[0];
-  if(request.destination_endpoint < 0xE0){
+  //Standard type, determined by header
+  if(request.destination_endpoint < 0xE0 && request.destination_endpoint > 0x0F){
     parseStandardMsg(request, data);
   }
+  // Broadcast type
+  else if (request.destination_endpoint <= 0x0F) {
+    request = parseBroadcastMsg(request, data);
+  }
+  //Bulk write type - TODO clarify
   else {
     request.index = data[1];
     request.payload = data.slice(2, data.length);

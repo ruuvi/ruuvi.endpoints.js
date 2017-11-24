@@ -3,6 +3,8 @@
  */
 "use strict";
 var endpoints = {
+  RAW_V1:            0x03, // Original broadcast raw data
+  RAW_V2:            0x05, // Updated raw format v2
   PLAINTEXT_MESSAGE: 0x10, // Plaintext data for info, debug etc
 
   BATTERY:           0x30, // Battery state message
@@ -21,9 +23,12 @@ var endpoints = {
 
 /**
  *  Handlers for incoming messages. Default handler prints message to console.
+ *  TODO: Default handler returns object with the key-value pairs
  *  Set these to your application handlers as needed
  */
 var handlers = {
+  raw1_handler:        require('./handlers/raw1.js'),
+  raw2_handler:        require('./handlers/raw2.js'),
   plaintext_handler:   require('./handlers/plaintext.js'),
   mam_handler:         require('./handlers/mam.js');
   temperature_handler: require('./handlers/temperature.js');
@@ -39,6 +44,14 @@ var routeRequest = function (request)
   }
 
   switch(request.destination_endpoint){
+  case endpoints.RAW_V1:
+      response = raw1_handler(request);
+      break;
+      
+  case endpoints.RAW_V2:
+      response = raw2_handler(request);
+      break;
+  
     case endpoints.PLAINTEXT_MESSAGE:
       response = plaintext_handler(request);
       break;

@@ -16,7 +16,12 @@ var endpoints = require('./endpoints.js');
  *  message.type
  *  message.payload.sample_rate
  *  message.payload.transmission_rate  
- *  // and so on. Payload fields are dependend on type.
+ *  // and so on. Payload fields are dependent on type.
+ *
+ *  Supports Ruuvi Broadcast types, such as manufacturer specific data RAW formats 0x03 and 0x05 (TODO)
+ *
+ *  Returns object with key-value pairs for data, for example data.source, data.destination, 
+ *  data.type, data.val1, data.val2, data.val3 and data.val4
  **/
 var parse = function(serialBuffer){
   return parser(serialBuffer);
@@ -25,7 +30,6 @@ var parse = function(serialBuffer){
 /**
  * Takes Ruuvi Standard Message
  * and returns 11-byte long UINT8 array represenstation.
- *
  */
 var create = function(message){
   console.log("TODO: handle: " + message);
@@ -45,25 +49,11 @@ var getDSPFunctions = function(){
   return endpoints.getDSPFunctions();
 };
 
-/**
- *  Parses given data and routes resulting message to appropriate handler.
- *  Example: 
- *  setHandler("ACCELERATION", grapher);
- *  on(data){ 
- *    handle(data); 
- *  };
- */
-var handle = function(data){
-	let message = parse(data);
-	endpoints.routeRequest(message);
-};
-
 module.exports = {
   parse:           parse,
   create:          create,
   getEndpoints:    getEndpoints,
   getDSPFunctions: getDSPFunctions,
-  handle:          handle
 };
 
 
