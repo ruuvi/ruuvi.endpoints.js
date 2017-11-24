@@ -27,12 +27,12 @@ var endpoints = {
  *  Set these to your application handlers as needed
  */
 var handlers = {
-  raw1_handler:        require('./handlers/raw1.js');
-  raw2_handler:        require('./handlers/raw2.js');
-  plaintext_handler:   require('./handlers/plaintext.js');
-  mam_handler:         require('./handlers/mam.js');
-  temperature_handler: require('./handlers/temperature.js');
-  unknown_handler:     require('./handlers/unknown.js');
+  raw1_handler:        require('./handlers/raw1.js'),
+  raw2_handler:        require('./handlers/raw2.js'),
+  plaintext_handler:   require('./handlers/plaintext.js'),
+  mam_handler:         require('./handlers/mam.js'),
+  temperature_handler: require('./handlers/temperature.js'),
+  unknown_handler:     require('./handlers/unknown.js')
 };
 
 var routeRequest = function (request)
