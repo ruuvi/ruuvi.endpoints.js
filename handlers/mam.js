@@ -1,3 +1,7 @@
+/*jshint 
+    node: true
+ */
+"use strict";
 var chunks      = [];
 var num_chunks  = 0;
 var crc         = 0;
