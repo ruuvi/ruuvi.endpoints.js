@@ -2,6 +2,7 @@
     node: true
  */
 "use strict";
+var endpoints = require("./endpoints.js");
 
 let types = {
   SENSOR_CONFIGURATION:  0x01, // Configure sensor
