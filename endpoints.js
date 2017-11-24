@@ -5,7 +5,7 @@
 var endpoints = {
   RAW_V1:            0x03, // Original broadcast raw data
   RAW_V2:            0x05, // Updated raw format v2
-  PLAINTEXT_MESSAGE: 0x10, // Plaintext data for info, debug etc
+  PLAINTEXT: 0x10, // Plaintext data for info, debug etc
 
   BATTERY:           0x30, // Battery state message
   TEMPERATURE:       0x31, // Temperature message
@@ -27,12 +27,12 @@ var endpoints = {
  *  Set these to your application handlers as needed
  */
 var handlers = {
-  raw1_handler:        require('./handlers/raw1.js'),
-  raw2_handler:        require('./handlers/raw2.js'),
-  plaintext_handler:   require('./handlers/plaintext.js'),
-  mam_handler:         require('./handlers/mam.js'),
-  temperature_handler: require('./handlers/temperature.js'),
-  unknown_handler:     require('./handlers/unknown.js')
+  RAW_V1:            require('./handlers/raw1.js'),
+  RAW_V2:            require('./handlers/raw2.js'),
+  PLAINTEXT:         require('./handlers/plaintext.js'),
+  MAM:               require('./handlers/mam.js'),
+  MOVEMENT_DETECTOR: require('./handlers/temperature.js'),
+  unknown_handler:   require('./handlers/unknown.js')
 };
 
 var routeRequest = function (request)
@@ -45,27 +45,27 @@ var routeRequest = function (request)
 
   switch(request.destination_endpoint){
   case endpoints.RAW_V1:
-      response = raw1_handler(request);
+      response = handlers.RAW_V1(request);
       break;
       
   case endpoints.RAW_V2:
-      response = raw2_handler(request);
+      response = handlers.RAW_V2(request);
       break;
   
     case endpoints.PLAINTEXT_MESSAGE:
-      response = plaintext_handler(request);
+      response = handlers.PLAINTEXT(request);
       break;
       
     case endpoints.TEMPERATURE:
-      response = temperature_handler(request);
+      response = handlers.TEMPERATURE(request);
       break;
 
     case endpoints.MAM:
-      response = mam_handler(request);
+      response = handlers.MAM(request);
       break;
 
     default:
-      response = unknown_handler(request);
+      response = handlers.unknown_handler(request);
       break;
   }
 
@@ -74,7 +74,7 @@ var routeRequest = function (request)
 
 /** 
  *  Replace default handler with one from application
- *  Usage: setHandler("ACCELERATION", handler);
+ *  Usage: setHandler(getEndpoints().ACCELERATION, handler);
  */
 var setHandler = function(endpoint, handler){
   handlers[endpoint] = handler;
