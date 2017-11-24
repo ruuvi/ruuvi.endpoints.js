@@ -5,57 +5,61 @@
 
 
 //https://github.com/ruuvi/ruuvi-sensor-protocols
-var parseRawRuuvi = function(manufacturerDataString){
-  let humidityStart      = 2;
-  let humidityEnd        = humidityStart+2;
+var parseRawRuuvi = function(manufacturerDataBytes){
+  //console.log(manufacturerDataBytes);
+  let humidityStart      = 1;
+  let humidityEnd        = humidityStart+1;
   let temperatureStart   = humidityEnd;
-  let temperatureEnd     = temperatureStart+4;
+  let temperatureEnd     = temperatureStart+2;
   let pressureStart      = temperatureEnd;
-  let pressureEnd        = pressureStart+4;
+  let pressureEnd        = pressureStart+2;
   let accelerationXStart = pressureEnd;
-  let accelerationXEnd   = accelerationXStart+4;
+  let accelerationXEnd   = accelerationXStart+2;
   let accelerationYStart = accelerationXEnd;
-  let accelerationYEnd   = accelerationYStart+4;
+  let accelerationYEnd   = accelerationYStart+2;
   let accelerationZStart = accelerationYEnd;
-  let accelerationZEnd   = accelerationZStart+4;
+  let accelerationZEnd   = accelerationZStart+2;
   let batteryStart       = accelerationZEnd;
-  let batteryEnd         = batteryEnd+4;
+  let batteryEnd         = batteryStart+2;
 
   let robject = {};
 
-  let humidity = manufacturerDataString.substring(humidityStart, humidityEnd);
-  //console.log(humidity);
-  humidity = parseInt(humidity, 16);
+  let humidity = manufacturerDataBytes[humidityStart];
   humidity/= 2; //scale
   robject.humidity = humidity;
 
-  let temperatureString = manufacturerDataString.substring(temperatureStart, temperatureEnd);
-  let temperature = parseInt(temperatureString.substring(0, 2), 16);  //Full degrees
-  temperature += parseInt(temperatureString.substring(2, 4), 16)/100; //Decimals
+  let temperatureBytes = manufacturerDataBytes.slice(temperatureStart, temperatureEnd);
+  let temperature = temperatureBytes[0]  //Full degrees
+  temperature += temperatureBytes[1]/100.0; //Decimals
   if(temperature > 128){           // Ruuvi format, sign bit + value
     temperature = temperature-128; 
     temperature = 0 - temperature; 
   }
-  robject.temperature = +temperature.toFixed(2); // Round to 2 decimals, format as a number
+  robject.temperature = temperature;
 
-  let pressure = parseInt(manufacturerDataString.substring(pressureStart, pressureEnd), 16);  // uint16_t pascals
+  let pressureBytes = manufacturerDataBytes.slice(pressureStart, pressureEnd)  // uint16_t pascals
+  let pressure = (pressureBytes[0]<<8) + pressureBytes[1];
   pressure += 50000; //Ruuvi format
   robject.pressure = pressure;
 
-  let accelerationX = parseInt(manufacturerDataString.substring(accelerationXStart, accelerationXEnd), 16);  // milli-g
+  let accelerationBytes = manufacturerDataBytes.slice(accelerationXStart, accelerationXEnd);  // milli-g
+  let accelerationX = (accelerationBytes[0]<<8) + accelerationBytes[1];
   if(accelerationX > 32767){ accelerationX -= 65536;}  //two's complement
 
-  let accelerationY = parseInt(manufacturerDataString.substring(accelerationYStart, accelerationYEnd), 16);  // milli-g
+  accelerationBytes = manufacturerDataBytes.slice(accelerationYStart, accelerationYEnd);  // milli-g
+  let accelerationY = (accelerationBytes[0]<<8) + accelerationBytes[1];
   if(accelerationY > 32767){ accelerationY -= 65536;}  //two's complement
 
-  let accelerationZ = parseInt(manufacturerDataString.substring(accelerationZStart, accelerationZEnd), 16);  // milli-g
+  accelerationBytes = manufacturerDataBytes.slice(accelerationZStart, accelerationZEnd);  // milli-g
+  let accelerationZ = (accelerationBytes[0]<<8) + accelerationBytes[1];
   if(accelerationZ > 32767){ accelerationZ -= 65536;}  //two's complement
 
   robject.accelerationX = accelerationX;
   robject.accelerationY = accelerationY;
   robject.accelerationZ = accelerationZ;
   
-  let battery = parseInt(manufacturerDataString.substring(batteryStart, batteryEnd), 16);  // milli volts
+  let batteryBytes = manufacturerDataBytes.slice(batteryStart, batteryEnd);  // milli volts
+  let battery = (batteryBytes[0]<<8) + batteryBytes[1];
   robject.battery = battery;
 
   return robject;
@@ -73,12 +77,12 @@ var parseRawRuuvi = function(manufacturerDataString){
 module.exports = function(request) {
   let robject = {};
   robject.ready = true;
-  if(request[0] != 0x03 || request.length < 20){
+  if(request.payload[0] != 0x03 || request.payload.length < 13){
     console.log("Improperly routed request at raw1");
+    console.log('\t' + JSON.stringify(request));
   }
   else {
-    let manufacturerDataString = request.payload.toString('hex');
-    console.log(manufacturerDataString); //XXX Debug
+    let manufacturerDataString = request.payload;
     robject = parseRawRuuvi(manufacturerDataString);
   }
   return robject;
