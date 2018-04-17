@@ -57,9 +57,11 @@ var parseRawRuuvi = function(manufacturerDataString){
   
   let battery = parseInt(manufacturerDataString.substring(batteryStart, batteryEnd), 16);  // milli volts
   robject.battery = battery;
+  robject.destination_endpoint = 5;
 
   return robject;
 }
+
 /** 
  * Parse incoming binary array with [raw format 1](https://github.com/ruuvi/ruuvi-sensor-protocols)
  *
@@ -73,14 +75,15 @@ var parseRawRuuvi = function(manufacturerDataString){
 // XXX not supported yet
 module.exports = function(request) {
   let robject = {};
+  if()
   robject.ready = true;
-  if(request[0] != 0x03 || request.length < 20){
+
+  if(request[0] != 0x05 || request.length < 20){
     console.log("Improperly routed request at raw2");
   }
   else {
-    let manufacturerDataString = request.payload.toString('hex');
-    console.log(manufacturerDataString); //XXX Debug
-    robject = parseRawRuuvi(manufacturerDataString);
+    
+    robject = parseRawRuuvi(request.payload);
   }
   return robject;
 };

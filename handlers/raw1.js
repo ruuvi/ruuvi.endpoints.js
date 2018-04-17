@@ -61,6 +61,7 @@ var parseRawRuuvi = function(manufacturerDataBytes){
   let batteryBytes = manufacturerDataBytes.slice(batteryStart, batteryEnd);  // milli volts
   let battery = (batteryBytes[0]<<8) + batteryBytes[1];
   robject.battery = battery;
+  robject.destination_endpoint = 3;
 
   return robject;
 }
