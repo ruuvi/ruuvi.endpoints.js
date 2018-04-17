@@ -75,7 +75,7 @@ var parseRawRuuvi = function(manufacturerDataString){
 // XXX not supported yet
 module.exports = function(request) {
   let robject = {};
-  if()
+  //if() TODO request type check
   robject.ready = true;
 
   if(request[0] != 0x05 || request.length < 20){
