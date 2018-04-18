@@ -5,7 +5,7 @@
 var endpoints = {
   RAW_V1:            0x03, // Original broadcast raw data
   RAW_V2:            0x05, // Updated raw format v2
-  PLAINTEXT: 0x10, // Plaintext data for info, debug etc
+  PLAINTEXT:         0x10, // Plaintext data for info, debug etc
 
   BATTERY:           0x30, // Battery state message
   TEMPERATURE:       0x31, // Temperature message
