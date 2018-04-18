@@ -19,7 +19,7 @@ var parseRawRuuvi = function(manufacturerDataString){
   let dataFormat = data[0] & 0xFF;
   let temperature = (data[1] << 8 | data[2] & 0xFF) / 200.0;
   let humidity =  ((data[3] & 0xFF) << 8 | data[4] & 0xFF) / 400.0;
-  let pressure = (double) ((data[5] & 0xFF) << 8 | data[6] & 0xFF) + 50000;
+  let pressure = ((data[5] & 0xFF) << 8 | data[6] & 0xFF) + 50000;
   let accelerationX = (data[7] << 8 | data[8] & 0xFF) / 1000.0;
   let accelerationY = (data[9] << 8 | data[10] & 0xFF) / 1000.0;
   let accelerationZ = (data[11] << 8 | data[12] & 0xFF) / 1000.0;
@@ -61,8 +61,8 @@ module.exports = function(request) {
   //if() TODO request type check
   robject.ready = true;
 
-  if(request[0] != 0x05 || request.length < 24){
-    console.log("Improperly routed request at raw2. Type: " + request[0] + " Length " + request.length);
+  if(request.payload[0] != 0x05 || request.payload.length < 24){
+    console.log("Improperly routed request at raw2. Type: " + request[0] + ", length " + request.length);
   }
   else {
     robject = parseRawRuuvi(request.payload);
