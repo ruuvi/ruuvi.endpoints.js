@@ -47,26 +47,24 @@ var parseRawRuuvi = function(manufacturerDataString){
 }
 
 /** 
- * Parse incoming binary array with [raw format 1](https://github.com/ruuvi/ruuvi-sensor-protocols)
+ * Parse incoming binary array with [raw format 2](https://github.com/ruuvi/ruuvi-sensor-protocols)
  *
- * Return object which has temperature (C), humidity (RH-%), pressure (Pa), acceleration x, y, z (mg), battery voltage (mV)
+ * Return object which has temperature (C), humidity (RH-%), pressure (Pa), acceleration x, y, z (mg), battery voltage (mV),
+ *               txPower (dBm), movement counter (unitless), measurement sequence number (unitless) and mac address.
  *
- * @param request binary array payload. return error if first byte is not 0x03. Any communication layer specific metadata should be stripped.
+ * @param request binary array payload. return error if first byte is not 0x05. Any communication layer specific metadata should be stripped.
  * @return object with ready = true if success, ready = false on failure.
  * 
  */
-
-// XXX not supported yet
 module.exports = function(request) {
   let robject = {};
   //if() TODO request type check
   robject.ready = true;
 
   if(request[0] != 0x05 || request.length < 24){
-    console.log("Improperly routed request at raw2");
+    console.log("Improperly routed request at raw2. Type: " + request[0] + " Length " + request.length);
   }
   else {
-
     robject = parseRawRuuvi(request.payload);
   }
   return robject;
