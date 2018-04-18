@@ -1,63 +1,47 @@
 /*jshint 
-    node: true
+ *node: true
  */
 "use strict";
+
+//TODO: Refactor into utils
+function toHexString(byteArray) {
+  return Array.from(byteArray, function(byte) {
+    return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+  }).join('')
+}
 
 
 //https://github.com/ruuvi/ruuvi-sensor-protocols
 var parseRawRuuvi = function(manufacturerDataString){
-  let humidityStart      = 2;
-  let humidityEnd        = humidityStart+2;
-  let temperatureStart   = humidityEnd;
-  let temperatureEnd     = temperatureStart+4;
-  let pressureStart      = temperatureEnd;
-  let pressureEnd        = pressureStart+4;
-  let accelerationXStart = pressureEnd;
-  let accelerationXEnd   = accelerationXStart+4;
-  let accelerationYStart = accelerationXEnd;
-  let accelerationYEnd   = accelerationYStart+4;
-  let accelerationZStart = accelerationYEnd;
-  let accelerationZEnd   = accelerationZStart+4;
-  let batteryStart       = accelerationZEnd;
-  let batteryEnd         = batteryEnd+4;
 
   let robject = {};
+  let data = manufacturerDataString;
+  let dataFormat = data[0] & 0xFF;
+  let temperature = (data[1] << 8 | data[2] & 0xFF) / 200d;
+  let humidity =  ((data[3] & 0xFF) << 8 | data[4] & 0xFF) / 400d;
+  let pressure = (double) ((data[5] & 0xFF) << 8 | data[6] & 0xFF) + 50000;
+  let accelerationX = (data[7] << 8 | data[8] & 0xFF) / 1000d;
+  let accelerationY = (data[9] << 8 | data[10] & 0xFF) / 1000d;
+  let accelerationZ = (data[11] << 8 | data[12] & 0xFF) / 1000d;
+  let powerInfo = (data[13] & 0xFF) << 8 | data[14] & 0xFF;
+  let batteryVoltage = (powerInfo >>> 5) / 1000d + 1.6d;
+  let txPower = (powerInfo & 0b11111) * 2 - 40;
+  let movementCounter = data[15] & 0xFF;
+  let measurementSequenceNumber = (data[16] & 0xFF) << 8 | data[17] & 0xFF;
+  let mac = toHexString(data.subarray(18));
 
-  let humidity = manufacturerDataString.substring(humidityStart, humidityEnd);
-  //console.log(humidity);
-  humidity = parseInt(humidity, 16);
-  humidity/= 2; //scale
+  robject.destination_endpoint = dataFormat;
+  robject.temperature = temperature;
   robject.humidity = humidity;
-
-  let temperatureString = manufacturerDataString.substring(temperatureStart, temperatureEnd);
-  let temperature = parseInt(temperatureString.substring(0, 2), 16);  //Full degrees
-  temperature += parseInt(temperatureString.substring(2, 4), 16)/100; //Decimals
-  if(temperature > 128){           // Ruuvi format, sign bit + value
-    temperature = temperature-128; 
-    temperature = 0 - temperature; 
-  }
-  robject.temperature = +temperature.toFixed(2); // Round to 2 decimals, format as a number
-
-  let pressure = parseInt(manufacturerDataString.substring(pressureStart, pressureEnd), 16);  // uint16_t pascals
-  pressure += 50000; //Ruuvi format
   robject.pressure = pressure;
-
-  let accelerationX = parseInt(manufacturerDataString.substring(accelerationXStart, accelerationXEnd), 16);  // milli-g
-  if(accelerationX > 32767){ accelerationX -= 65536;}  //two's complement
-
-  let accelerationY = parseInt(manufacturerDataString.substring(accelerationYStart, accelerationYEnd), 16);  // milli-g
-  if(accelerationY > 32767){ accelerationY -= 65536;}  //two's complement
-
-  let accelerationZ = parseInt(manufacturerDataString.substring(accelerationZStart, accelerationZEnd), 16);  // milli-g
-  if(accelerationZ > 32767){ accelerationZ -= 65536;}  //two's complement
-
   robject.accelerationX = accelerationX;
   robject.accelerationY = accelerationY;
   robject.accelerationZ = accelerationZ;
-  
-  let battery = parseInt(manufacturerDataString.substring(batteryStart, batteryEnd), 16);  // milli volts
-  robject.battery = battery;
-  robject.destination_endpoint = 5;
+  robject.batteryVoltage = batteryVoltage;
+  robject.txPower = txPower;
+  robject.movementCounter = movementCounter;
+  robject.measurementSequenceNumber = measurementSequenceNumber;
+  robject.mac = mac;
 
   return robject;
 }
@@ -78,11 +62,11 @@ module.exports = function(request) {
   //if() TODO request type check
   robject.ready = true;
 
-  if(request[0] != 0x05 || request.length < 20){
+  if(request[0] != 0x05 || request.length < 24){
     console.log("Improperly routed request at raw2");
   }
   else {
-    
+
     robject = parseRawRuuvi(request.payload);
   }
   return robject;
