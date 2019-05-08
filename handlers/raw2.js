@@ -17,7 +17,11 @@ var parseRawRuuvi = function(manufacturerDataString){
   let robject = {};
   let data = manufacturerDataString;
   let dataFormat = data[0] & 0xFF;
-  let temperature = (data[1] << 8 | data[2] & 0xFF) / 200.0;
+  let temperature = (data[1] << 8 | data[2] & 0xFF); 
+  if (temperature > 32767) {
+    temperature -= 65535;
+  }
+  temperature /= 200.0;
   let humidity =  ((data[3] & 0xFF) << 8 | data[4] & 0xFF) / 400.0;
   let pressure = ((data[5] & 0xFF) << 8 | data[6] & 0xFF) + 50000;
   let accelerationX = (data[7] << 8 | data[8] & 0xFF) / 1000.0;
