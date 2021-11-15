@@ -27,6 +27,15 @@ var parseRawRuuvi = function(manufacturerDataString){
   let accelerationX = (data[7] << 8 | data[8] & 0xFF) / 1000.0;
   let accelerationY = (data[9] << 8 | data[10] & 0xFF) / 1000.0;
   let accelerationZ = (data[11] << 8 | data[12] & 0xFF) / 1000.0;
+  if (accelerationX > 32.767) {
+    accelerationX -= 65.535;
+  }
+  if (accelerationY > 32.767) {
+    accelerationX -= 65.535;
+  }
+  if (accelerationZ > 32.767) {
+    accelerationX -= 65.535;
+  }
   let powerInfo = (data[13] & 0xFF) << 8 | data[14] & 0xFF;
   let batteryVoltage = (powerInfo >>> 5) / 1000.0 + 1.6;
   let txPower = (powerInfo & 0b11111) * 2 - 40;
